@@ -1,15 +1,14 @@
-dat<-read.table("household_power_consumption.txt",sep=";",head=TRUE,na.strings=c("?"," "))
-dates=strptime(as.character(dat[,1]),"%d/%m/%Y")
-dates=as.Date(dates)
+NEI <- readRDS("summarySCC_PM25.rds")
+SCC <- readRDS("Source_Classification_Code.rds")
 
-subset = dat[dates>=as.Date("2007-02-01") & dates<=as.Date("2007-02-02"),]
-global_active_power = as.numeric(as.character(subset[,3]))
-
-
-#plot2
-times = paste(as.character(subset[,1]),as.character(subset[,2]))
-times = strptime(times,"%d/%m/%Y %H:%M:%S")
-
+#question 2
+d1999<-NEI[NEI[,6]==1999 & NEI[,1] == "24510",]
+d2002<-NEI[NEI[,6]==2002&NEI[,1] == "24510",]
+d2005<-NEI[NEI[,6]==2005&NEI[,1] == "24510",]
+d2008<-NEI[NEI[,6]==2008&NEI[,1] == "24510",]
+total<-c(sum(d1999[,4]),sum(d2002[,4]),sum(d2005[,4]),sum(d2008[,4]))
 png("plot2.png")
-plot(times,global_active_power,type='l',xlab=" ",ylab="Global Active Power (kilowatts)")
+plot(total~c(1999,2002,2005,2008),type='l',ylab="total PM2.5 of Baltimore ",xlab="year")
 dev.off()
+
+

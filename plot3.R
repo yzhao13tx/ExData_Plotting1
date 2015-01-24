@@ -1,22 +1,38 @@
-dat<-read.table("household_power_consumption.txt",sep=";",head=TRUE,na.strings=c("?"," "))
-dates=strptime(as.character(dat[,1]),"%d/%m/%Y")
-dates=as.Date(dates)
+NEI <- readRDS("summarySCC_PM25.rds")
+SCC <- readRDS("Source_Classification_Code.rds")
 
-subset = dat[dates>=as.Date("2007-02-01") & dates<=as.Date("2007-02-02"),]
-global_active_power = as.numeric(as.character(subset[,3]))
+#question 3
+library("ggplot2")
 
+d1999<-NEI[NEI[,6]==1999 & NEI[,1] == "24510"&NEI[,5]=="POINT",]
+d2002<-NEI[NEI[,6]==2002&NEI[,1] == "24510"&NEI[,5]=="POINT",]
+d2005<-NEI[NEI[,6]==2005&NEI[,1] == "24510"&NEI[,5]=="POINT",]
+d2008<-NEI[NEI[,6]==2008&NEI[,1] == "24510"&NEI[,5]=="POINT",]
+total<-c(sum(d1999[,4]),sum(d2002[,4]),sum(d2005[,4]),sum(d2008[,4]))
+POINT=data.frame(pm2.5=total,year=c(1999,2002,2005,2008),type="POINT")
 
-#plot3
-times = paste(as.character(subset[,1]),as.character(subset[,2]))
-times = strptime(times,"%d/%m/%Y %H:%M:%S")
+d1999<-NEI[NEI[,6]==1999 & NEI[,1] == "24510"&NEI[,5]=="NONPOINT",]
+d2002<-NEI[NEI[,6]==2002&NEI[,1] == "24510"&NEI[,5]=="NONPOINT",]
+d2005<-NEI[NEI[,6]==2005&NEI[,1] == "24510"&NEI[,5]=="NONPOINT",]
+d2008<-NEI[NEI[,6]==2008&NEI[,1] == "24510"&NEI[,5]=="NONPOINT",]
+total<-c(sum(d1999[,4]),sum(d2002[,4]),sum(d2005[,4]),sum(d2008[,4]))
+NONPOINT=data.frame(pm2.5=total,year=c(1999,2002,2005,2008),type="NONPOINT")
 
-Sub_metering_1 = as.numeric(as.character(subset[,7]))
-Sub_metering_2 = as.numeric(as.character(subset[,8]))
-Sub_metering_3 = as.numeric(as.character(subset[,9]))
+d1999<-NEI[NEI[,6]==1999 & NEI[,1] == "24510"&NEI[,5]=="ON-ROAD",]
+d2002<-NEI[NEI[,6]==2002&NEI[,1] == "24510"&NEI[,5]=="ON-ROAD",]
+d2005<-NEI[NEI[,6]==2005&NEI[,1] == "24510"&NEI[,5]=="ON-ROAD",]
+d2008<-NEI[NEI[,6]==2008&NEI[,1] == "24510"&NEI[,5]=="ON-ROAD",]
+total<-c(sum(d1999[,4]),sum(d2002[,4]),sum(d2005[,4]),sum(d2008[,4]))
+ONROAD=data.frame(pm2.5=total,year=c(1999,2002,2005,2008),type="ONROAD")
 
+d1999<-NEI[NEI[,6]==1999 & NEI[,1] == "24510"&NEI[,5]=="NON-ROAD",]
+d2002<-NEI[NEI[,6]==2002&NEI[,1] == "24510"&NEI[,5]=="NON-ROAD",]
+d2005<-NEI[NEI[,6]==2005&NEI[,1] == "24510"&NEI[,5]=="NON-ROAD",]
+d2008<-NEI[NEI[,6]==2008&NEI[,1] == "24510"&NEI[,5]=="NON-ROAD",]
+total<-c(sum(d1999[,4]),sum(d2002[,4]),sum(d2005[,4]),sum(d2008[,4]))
+NONROAD=data.frame(pm2.5=total,year=c(1999,2002,2005,2008),type="NONROAD")
+
+all=rbind(POINT,NONPOINT,ONROAD,NONROAD)
 png("plot3.png")
-plot(times,Sub_metering_1,type='l',xlab=" ",ylab="Energy sub metering",col="black")
-lines(times,Sub_metering_2,col="red")
-lines(times,Sub_metering_3,col="blue")
-legend("topright",c("Sub_metering_1","Sub_metering_2","Sub_metering_3"),lty=c(1,1,1),lwd=c(2,2,2), col=c("black","red","blue"))
+qplot(year,pm2.5,data=all,geom=c("line","point"),color=type)
 dev.off()
